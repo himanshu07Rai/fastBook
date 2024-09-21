@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, date
 
 
-class Book(BaseModel):
+class BookSchema(BaseModel):
     id: uuid.UUID
     title: str
     author: str
@@ -15,7 +15,7 @@ class Book(BaseModel):
     updated_at: datetime
 
 
-class BookCreateModel(BaseModel):
+class BookCreateSchema(BaseModel):
     title: str
     author: str
     publisher: str
@@ -24,7 +24,7 @@ class BookCreateModel(BaseModel):
     language: str
 
 
-class BookUpdateModel(BaseModel):
+class BookUpdateSchema(BaseModel):
     title: str
     author: str
     publisher: str
