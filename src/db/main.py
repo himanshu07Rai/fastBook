@@ -9,8 +9,13 @@ async_engine = AsyncEngine(create_engine(url=Config.DATABASE_URL))
 
 
 async def init_db() -> None:
-    async with async_engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+    print("Initializing database...")
+    try:
+        async with async_engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
+        print("Database initialized successfully.")
+    except Exception as e:
+        print(f"Failed to initialize database: {e}")
 
 
 async def get_session() -> AsyncSession: # type: ignore

@@ -1,7 +1,5 @@
 from datetime import datetime, date
 from sqlmodel import Field, SQLModel
-
-
 import uuid
 
 

@@ -25,7 +25,6 @@ class BookService:
             return None
         statement = select(Book).where(Book.id == book_id)
         result = await session.exec(statement)
-        print(result)
         book = result.first() 
         if book is None:
             return None

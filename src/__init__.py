@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from .books.routes import router as books_router
+
 from .db.main import init_db
+
+from .books.routes import router as books_router
+from .auth.routes import auth_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Application started")
+    print("Application startedssd")
+    from src.books.models import Book
     await init_db()
     yield
     print("Application stopped")
@@ -22,4 +26,5 @@ app = FastAPI(
 )
 
 app.include_router(books_router, prefix=f"{version_prefix}/books", tags=["books"])
+app.include_router(auth_router, prefix=f"{version_prefix}/auth", tags=["auth"])
 
