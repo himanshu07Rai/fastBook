@@ -28,9 +28,9 @@ def create_access_token(user_data: dict, expiry: timedelta = None, refresh:bool 
         algorithm=Config.JWT_ALGORITHM)
     return encoded_jwt
 
-def decode_access_token(token: str) -> dict:
+def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, key=Config.JWT_SECRET, algorithms=[Config.JWT_ALGORITHM])
-    except jwt.ExpiredSignatureError as e:
+    except jwt.PyJWTError as e:
         logging.exception(e)
         return None

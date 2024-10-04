@@ -3,13 +3,16 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from .schema import BookSchema, BookCreateSchema, BookUpdateSchema
 from src.db.main import get_session
 from .service import BookService
+from src.auth.dependencies import AccessTokenBearer
 
 router = APIRouter()
 book_service = BookService()
+user_details = AccessTokenBearer() # similar to attach user
 
 @router.get('/')
-async def get_books(session:AsyncSession = Depends(get_session)):
+async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(user_details)):
     books =await book_service.get_all_books(session)
+    print(user_details)
     return books
 
 @router.get('/{book_id}', response_model=BookSchema)
