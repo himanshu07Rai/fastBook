@@ -19,3 +19,7 @@ class UserSchema(BaseModel):
     is_verified: bool
     created_at: datetime
     updated_at: datetime
+
+class UserLoginSchema(BaseModel):
+    email: str
+    password: str

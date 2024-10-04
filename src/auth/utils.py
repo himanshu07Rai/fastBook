@@ -1,4 +1,12 @@
 from passlib.context import CryptContext
+from datetime import datetime, timedelta
+from src.config import Config
+import jwt
+import uuid
+import logging
+
+
+ACCESS_TOKEN_EXPIRY = 3600
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -7,3 +15,22 @@ def generate_hashed_password(password: str) -> str:
 
 def verify_password(password: str, hashed_password: str) -> bool:
     return pwd_context.verify(password, hashed_password)
+
+def create_access_token(user_data: dict, expiry: timedelta = None, refresh:bool = False) -> str:
+    payload = {}
+    payload['user'] = user_data
+    payload['exp'] = datetime.now() + (expiry or timedelta(seconds=ACCESS_TOKEN_EXPIRY))
+    payload['jti'] = str(uuid.uuid4())
+    payload['refresh'] = refresh
+    encoded_jwt = jwt.encode(
+        payload,
+        key=Config.JWT_SECRET,
+        algorithm=Config.JWT_ALGORITHM)
+    return encoded_jwt
+
+def decode_access_token(token: str) -> dict:
+    try:
+        return jwt.decode(token, key=Config.JWT_SECRET, algorithms=[Config.JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError as e:
+        logging.exception(e)
+        return None
