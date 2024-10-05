@@ -1,13 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from datetime import timedelta
+from datetime import timedelta, datetime
 from .schema import UserCreateSchema, UserSchema, UserLoginSchema
 from .service import UserService
 from src.db.main import get_session
 from .utils import create_access_token, verify_password
+from .dependencies import RefreshTokenBearer
 
 auth_router = APIRouter()
 auth_service = UserService()
+user_data_from_refresh_token = RefreshTokenBearer()
 
 @auth_router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=UserSchema)
 async def signup(user_data: UserCreateSchema, session:AsyncSession = Depends(get_session)):
@@ -45,3 +47,14 @@ async def login(user_data: UserLoginSchema, session:AsyncSession = Depends(get_s
         "access_token": access_token,
         "refresh_token": refresh_token
     }
+
+@auth_router.post('/refresh')
+async def get_new_access_token(user_token_data:dict= Depends(user_data_from_refresh_token)):
+    expiry_timestamp = user_token_data['exp']
+    user_data = user_token_data['user']
+    if datetime.fromtimestamp(expiry_timestamp) > datetime.now():
+        access_token = create_access_token(user_data)
+        return {
+            "access_token": access_token
+        }
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh token")

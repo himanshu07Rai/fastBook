@@ -7,10 +7,10 @@ from src.auth.dependencies import AccessTokenBearer
 
 router = APIRouter()
 book_service = BookService()
-user_details = AccessTokenBearer() # similar to attach user
+user_details_from_access_token = AccessTokenBearer() # similar to attach user
 
 @router.get('/')
-async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(user_details)):
+async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(user_details_from_access_token)):
     books =await book_service.get_all_books(session)
     print(user_details)
     return books
