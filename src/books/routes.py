@@ -4,16 +4,22 @@ from .schema import BookSchema, BookCreateSchema, BookUpdateSchema
 from src.db.main import get_session
 from .service import BookService
 from src.auth.dependencies import AccessTokenBearer
+from src.db.redis import get_client
+from src.konstants import VALID_ACCESS_TOKEN_IDS
 
 router = APIRouter()
 book_service = BookService()
-user_details_from_access_token = AccessTokenBearer() # similar to attach user
+access_token_details = AccessTokenBearer() # similar to attach user
 
 @router.get('/')
-async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(user_details_from_access_token)):
-    books =await book_service.get_all_books(session)
-    print(user_details)
-    return books
+async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(access_token_details), redis_client = Depends(get_client)):
+    if(redis_client.sismember(VALID_ACCESS_TOKEN_IDS, user_details['jti'])):
+        books =await book_service.get_all_books(session)
+        return books
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={
+        "message": "Invalid token",
+        "resolve": "Please login again"
+    })
 
 @router.get('/{book_id}', response_model=BookSchema)
 async def get_book_by_id(book_id: str, session:AsyncSession = Depends(get_session)) -> dict:

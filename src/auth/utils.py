@@ -4,6 +4,7 @@ from src.config import Config
 import jwt
 import uuid
 import logging
+from src.db.redis import get_client
 
 
 ACCESS_TOKEN_EXPIRY = 3600
@@ -26,7 +27,7 @@ def create_access_token(user_data: dict, expiry: timedelta = None, refresh:bool 
         payload,
         key=Config.JWT_SECRET,
         algorithm=Config.JWT_ALGORITHM)
-    return encoded_jwt
+    return encoded_jwt, payload['jti']
 
 def decode_token(token: str) -> dict:
     try:
