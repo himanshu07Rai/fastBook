@@ -14,7 +14,7 @@ access_token_details = AccessTokenBearer() # similar to attach user
 admin_role_checker = Depends(RoleChecker(USER_ROLE['ADMIN']))
 
 @router.get('/', dependencies=[admin_role_checker])
-async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(access_token_details), redis_client = Depends(get_client)):
+async def get_all_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(access_token_details), redis_client = Depends(get_client)):
     if(redis_client.sismember(VALID_ACCESS_TOKEN_IDS, user_details['jti'])):
         books =await book_service.get_all_books(session)
         return books
@@ -22,6 +22,12 @@ async def get_books(session:AsyncSession = Depends(get_session), user_details: d
         "message": "Invalid token",
         "resolve": "Please login again"
     })
+
+@router.get('/user/{user_id}')
+async def get_user_all_books(user_id:str, session:AsyncSession = Depends(get_session), token_details: dict = Depends(access_token_details)):
+    current_user_id = token_details['user_data']['id']
+    books =await book_service.get_user_all_books(session, user_id, current_user_id)
+    return books
 
 @router.get('/{book_id}', response_model=BookSchema)
 async def get_book_by_id(book_id: str, session:AsyncSession = Depends(get_session)) -> dict:
@@ -31,8 +37,12 @@ async def get_book_by_id(book_id: str, session:AsyncSession = Depends(get_sessio
     return book
 
 @router.post('/', status_code=status.HTTP_201_CREATED)
-async def create_a_book(book_data: BookCreateSchema, session: AsyncSession = Depends(get_session)):
-    new_book = await book_service.create_book(book_data, session)
+async def create_a_book(
+        book_data: BookCreateSchema,
+        session: AsyncSession = Depends(get_session),
+        token_details: dict = Depends(access_token_details)
+    ):
+    new_book = await book_service.create_book(book_data, session, user_id=token_details['user_details']['id'])
     return new_book
 
 @router.put('/{book_id}', response_model=BookSchema)

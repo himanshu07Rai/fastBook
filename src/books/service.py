@@ -18,6 +18,14 @@ class BookService:
         result = await session.exec(statement)
         return result.all()
 
+    async def get_user_all_books(self, session: AsyncSession, user_id: str, current_user_id: str):
+        if is_valid_uuid(user_id):
+            statement = select(Book).where(Book.user_id == user_id).order_by(Book.created_at)
+            result = await session.exec(statement)
+            return result.all()
+        else:
+            return []
+
     async def get_book(self, book_id:str, session: AsyncSession):
         if is_valid_uuid(book_id):
             book_id = uuid.UUID(book_id)
@@ -25,17 +33,18 @@ class BookService:
             return None
         statement = select(Book).where(Book.id == book_id)
         result = await session.exec(statement)
-        book = result.first() 
+        book = result.first()
         if book is None:
             return None
         return book
 
     async def create_book(
-        self, book_data: BookCreateSchema, session: AsyncSession
+        self, book_data: BookCreateSchema, session: AsyncSession, user_id: uuid.UUID
     ):
         try:
             book_data_dict = book_data.model_dump()
             book_data_dict['published_date'] = datetime.strptime(book_data_dict['published_date'],"%Y-%m-%d").date()
+            book_data_dict['user_id'] = user_id
             new_book = Book(**book_data_dict)
             session.add(new_book)
             await session.commit()

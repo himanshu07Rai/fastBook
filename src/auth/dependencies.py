@@ -59,7 +59,7 @@ async def get_current_user(
         token: dict = Depends(AccessTokenBearer()),
         session: AsyncSession = Depends(get_session),
     ) -> UserSchema:
-    user_email = token['user']['email']
+    user_email = token['user_data']['email']
     user = await user_service.get_user_by_email(user_email, session)
     if not user:
         raise HTTPException(
