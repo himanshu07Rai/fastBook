@@ -22,7 +22,7 @@ app = FastAPI(
     title= "Books API",
     description="A simple API that manages books.",
     version=version,
-    lifespan=lifespan
+    #lifespan=lifespan    # using alembic for migrations
 )
 
 app.include_router(books_router, prefix=f"{version_prefix}/books", tags=["books"])

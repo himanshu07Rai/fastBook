@@ -1,10 +1,15 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
-from fastapi import Request, status
+from fastapi import Request, status, Depends
 from fastapi.exceptions import HTTPException
+from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.db.main import get_session
 from .utils import decode_token
+from .service import UserService
+from .schema import UserSchema
 
+user_service = UserService()
 # the below functions will check the tokrn and verify the token data
 # if the token is valid, it will return the token payload
 # if the token is invalid, it will raise an HTTPException with status code 403
@@ -49,3 +54,29 @@ class RefreshTokenBearer(TokenBearer):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access token not allowed",
             )
+
+async def get_current_user(
+        token: dict = Depends(AccessTokenBearer()),
+        session: AsyncSession = Depends(get_session),
+    ) -> UserSchema:
+    user_email = token['user']['email']
+    user = await user_service.get_user_by_email(user_email, session)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return user
+
+class RoleChecker:
+    def __init__(self, role):
+        self.role = role
+
+    async def __call__(self, user: UserSchema = Depends(get_current_user)):
+        print(user)
+        if user.role < self.role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions",
+            )
+        return user

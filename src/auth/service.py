@@ -3,6 +3,7 @@ from sqlmodel import select
 from .models import User
 from .schema import UserCreateSchema
 from .utils import generate_hashed_password
+from src.konstants import USER_ROLE
 
 class UserService:
 
@@ -19,6 +20,7 @@ class UserService:
         user_data_dict = user_data.model_dump()
         new_user = User(**user_data_dict)
         new_user.password = generate_hashed_password(new_user.password)
+        new_user.role = USER_ROLE['NORMAL']
         session.add(new_user)
         await session.commit()
         return new_user

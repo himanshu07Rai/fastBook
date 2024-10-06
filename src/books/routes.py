@@ -3,15 +3,17 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from .schema import BookSchema, BookCreateSchema, BookUpdateSchema
 from src.db.main import get_session
 from .service import BookService
-from src.auth.dependencies import AccessTokenBearer
+from src.auth.dependencies import AccessTokenBearer, RoleChecker
 from src.db.redis import get_client
 from src.konstants import VALID_ACCESS_TOKEN_IDS
+from src.konstants import USER_ROLE
 
 router = APIRouter()
 book_service = BookService()
 access_token_details = AccessTokenBearer() # similar to attach user
+admin_role_checker = Depends(RoleChecker(USER_ROLE['ADMIN']))
 
-@router.get('/')
+@router.get('/', dependencies=[admin_role_checker])
 async def get_books(session:AsyncSession = Depends(get_session), user_details: dict = Depends(access_token_details), redis_client = Depends(get_client)):
     if(redis_client.sismember(VALID_ACCESS_TOKEN_IDS, user_details['jti'])):
         books =await book_service.get_all_books(session)

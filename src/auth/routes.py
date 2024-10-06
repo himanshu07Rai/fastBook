@@ -5,7 +5,7 @@ from .schema import UserCreateSchema, UserSchema, UserLoginSchema
 from .service import UserService
 from src.db.main import get_session
 from .utils import create_access_token, verify_password
-from .dependencies import RefreshTokenBearer, AccessTokenBearer
+from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user
 from src.db.redis import get_client
 from src.konstants import VALID_ACCESS_TOKEN_IDS
 
@@ -36,6 +36,7 @@ async def login(user_data: UserLoginSchema, session:AsyncSession = Depends(get_s
     user_data = {
         "id": str(user.id),
         "email": user.email,
+        "role": user.role
     }
     access_token, jti = create_access_token(user_data)
     refresh_token = create_access_token(user_data, refresh=True, expiry=timedelta(days=30))
@@ -46,7 +47,8 @@ async def login(user_data: UserLoginSchema, session:AsyncSession = Depends(get_s
             "email": user.email,
             "username": user.username,
             "first_name": user.first_name,
-            "last_name": user.last_name
+            "last_name": user.last_name,
+            "role": user.role
         },
         "access_token": access_token,
         "refresh_token": refresh_token
@@ -62,6 +64,10 @@ async def get_new_access_token(user_token_data:dict= Depends(user_data_from_refr
             "access_token": access_token
         }
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh token")
+
+@auth_router.get('/me')
+async def get_current_user(user: dict = Depends(get_current_user)):
+    return user
 
 @auth_router.post('/logout')
 async def logout(token_details: dict = Depends(access_token_details), client=Depends(get_client)):
