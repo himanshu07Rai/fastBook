@@ -23,6 +23,13 @@ def register_middleware(app: FastAPI):
 
         print(message)
         return response
+    
+    # @app.middleware("http")
+    # async def authorization_header(request: Request, call_next):
+    #     if "authorization" not in request.headers:
+    #         return JSONResponse(content={"message": "Unauthorized access"}, status_code=status.HTTP_401_UNAUTHORIZED)
+    #     response = await call_next(request)
+    #     return response
 
     app.add_middleware(
         CORSMiddleware,
