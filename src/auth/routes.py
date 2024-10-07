@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from datetime import timedelta, datetime
-from .schema import UserCreateSchema, UserSchema, UserLoginSchema
+from .schema import UserCreateSchema, UserSchema, UserLoginSchema, UserWithBooksSchema
 from .service import UserService
 from src.db.main import get_session
 from .utils import create_access_token, verify_password
@@ -65,7 +65,7 @@ async def get_new_access_token(user_token_data:dict= Depends(user_data_from_refr
         }
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh token")
 
-@auth_router.get('/me', response_model=UserSchema)
+@auth_router.get('/me', response_model=UserWithBooksSchema)
 async def get_current_user(user: dict = Depends(get_current_user)):
     return user
 

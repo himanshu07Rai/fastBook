@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from .schema import BookSchema, BookCreateSchema, BookUpdateSchema
+from .schema import BookCreateSchema, BookUpdateSchema, BookDetailSchema
 from src.db.main import get_session
 from .service import BookService
 from src.auth.dependencies import AccessTokenBearer, RoleChecker
@@ -29,7 +29,7 @@ async def get_user_all_books(user_id:str, session:AsyncSession = Depends(get_ses
     books =await book_service.get_user_all_books(session, user_id, current_user_id)
     return books
 
-@router.get('/{book_id}', response_model=BookSchema)
+@router.get('/{book_id}', response_model=BookDetailSchema)
 async def get_book_by_id(book_id: str, session:AsyncSession = Depends(get_session)) -> dict:
     book = await book_service.get_book(book_id,session)
     if not book:
@@ -45,7 +45,7 @@ async def create_a_book(
     new_book = await book_service.create_book(book_data, session, user_id=token_details['user_details']['id'])
     return new_book
 
-@router.put('/{book_id}', response_model=BookSchema)
+@router.put('/{book_id}', response_model=BookDetailSchema)
 async def update_a_book(book_id: str, book_data: BookUpdateSchema, session: AsyncSession = Depends(get_session)):
     updated_book = await book_service.update_book(book_id, book_data, session)
     if not updated_book:
