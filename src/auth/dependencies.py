@@ -1,13 +1,14 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
-from fastapi import Request, status, Depends
-from fastapi.exceptions import HTTPException
+from fastapi import Request, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.db.main import get_session
 from .utils import decode_token
 from .service import UserService
 from .schema import UserSchema
+from src.errors import InvalidToken, RefreshTokenRequired, AccessTokenRequired, InsufficientPermission, AccountNotVerified
+
 
 user_service = UserService()
 # the below functions will check the tokrn and verify the token data
@@ -24,10 +25,7 @@ class TokenBearer(HTTPBearer):
         credentials = await super().__call__(request)
         is_token_valid, token_payload = self.is_token_valid(credentials.credentials)
         if not is_token_valid:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid token",
-            )
+            raise InvalidToken()
         self.verify_token_payload(token_payload)
         return token_payload
 
@@ -41,19 +39,13 @@ class TokenBearer(HTTPBearer):
 class AccessTokenBearer(TokenBearer):
     def verify_token_payload(self, token_payload):
         if token_payload and token_payload['refresh']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Refresh token not allowed",
-            )
+            raise AccessTokenRequired()
     
 class RefreshTokenBearer(TokenBearer):
     def verify_token_payload(self, token_payload):
         print(token_payload)
         if token_payload and not token_payload['refresh']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access token not allowed",
-            )
+            raise RefreshTokenRequired()
 
 async def get_current_user(
         token: dict = Depends(AccessTokenBearer()),
@@ -61,11 +53,6 @@ async def get_current_user(
     ) -> UserSchema:
     user_email = token['user_data']['email']
     user = await user_service.get_user_by_email(user_email, session)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
     return user
 
 class RoleChecker:
@@ -75,8 +62,5 @@ class RoleChecker:
     async def __call__(self, user: UserSchema = Depends(get_current_user)):
         print(user)
         if user.role < self.role:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions",
-            )
+            raise InsufficientPermission()
         return user

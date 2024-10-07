@@ -6,6 +6,7 @@ from .db.main import init_db
 from .books.routes import router as books_router
 from .auth.routes import auth_router
 from .reviews.routes import review_router
+from .errors import register_all_errors
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,6 +26,8 @@ app = FastAPI(
     version=version,
     #lifespan=lifespan    # using alembic for migrations
 )
+
+register_all_errors(app)
 
 app.include_router(books_router, prefix=f"{version_prefix}/books", tags=["books"])
 app.include_router(auth_router, prefix=f"{version_prefix}/auth", tags=["auth"])
