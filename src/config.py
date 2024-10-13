@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     REDIS_HOST: str
     REDIS_PORT: int = 6379
+    REDIS_URL: str
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
