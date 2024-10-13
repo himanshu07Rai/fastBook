@@ -12,8 +12,8 @@ from .middleware import register_middleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Application startedssd")
-    from src.db.models import Book
-    await init_db()
+    # from src.db.models import Book
+    # await init_db()
     yield
     print("Application stopped")
 
