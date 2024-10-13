@@ -1,7 +1,7 @@
 """Add role column to User table
 
 Revision ID: d6941914011c
-Revises: 48d19d7352ab
+Revises: 519706c7c347
 Create Date: 2024-10-06 15:51:47.470289
 
 """
@@ -14,7 +14,7 @@ import sqlmodel
 
 # revision identifiers, used by Alembic.
 revision: str = 'd6941914011c'
-down_revision: Union[str, None] = '48d19d7352ab'
+down_revision: Union[str, None] = '519706c7c347'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

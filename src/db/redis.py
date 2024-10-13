@@ -1,6 +1,7 @@
 import redis
+from src.config import Config
 
-client = redis.Redis(host='localhost', port=6380, db=0)
+client = redis.Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, db=0)
 
 def get_redis_client():
     return client

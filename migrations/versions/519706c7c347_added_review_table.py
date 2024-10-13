@@ -1,7 +1,7 @@
 """added review table
 
 Revision ID: 519706c7c347
-Revises: 43bf38afe495
+Revises: 34afefd4f072
 Create Date: 2024-10-06 20:52:41.749566
 
 """
@@ -14,7 +14,7 @@ import sqlmodel
 
 # revision identifiers, used by Alembic.
 revision: str = '519706c7c347'
-down_revision: Union[str, None] = '43bf38afe495'
+down_revision: Union[str, None] = '34afefd4f072'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
