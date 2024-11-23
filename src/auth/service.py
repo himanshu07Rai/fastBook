@@ -7,6 +7,7 @@ from src.konstants import USER_ROLE
 from src.mail import send_email
 from src.config import Config
 from src.auth.utils import verify_confirmation_token, create_confirmation_token
+from src.celery_tasks import send_email_task
 
 class UserService:
 
@@ -48,7 +49,7 @@ class UserService:
             <p>Please click <a href="{link}">here</a> to confirm your email address</p>
         </html>
         """
-        await send_email(email, "Welcome to the library",template=template)
+        send_email_task.delay(email, "Welcome to the library", template)
     
     async def verify_email(self, token, session: AsyncSession):
         user_data = verify_confirmation_token(token)

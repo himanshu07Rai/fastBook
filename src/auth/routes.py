@@ -8,7 +8,6 @@ from .utils import create_access_token, verify_password
 from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user
 from src.db.redis import get_client
 from src.konstants import VALID_ACCESS_TOKEN_IDS
-from src.mail import send_email
 
 auth_router = APIRouter()
 auth_service = UserService()
