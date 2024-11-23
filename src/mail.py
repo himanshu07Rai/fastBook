@@ -19,24 +19,8 @@ mail = FastMail(
     )
 )
 
-async def send_email(email: str, subject: str, **kwargs):
-    template = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{subject}</title>
-    </head>
-    <body>
-        <h1>Welcome to Fast Book</h1>
-        <p>Hello {kwargs.get('username', '')},</p>
-        <p>{kwargs.get('message', '')}</p>
-    </body>
-    </html>
-    """
-    
+
+async def send_email(email: str, subject: str,template, **kwargs):
     message = MessageSchema(
         subject=subject,
         recipients=[email],
@@ -44,5 +28,6 @@ async def send_email(email: str, subject: str, **kwargs):
         subtype="html",
         **kwargs
     )
+    print("Sending email")
     await mail.send_message(message)
     

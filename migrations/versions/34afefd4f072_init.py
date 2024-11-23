@@ -45,7 +45,7 @@ def upgrade() -> None:
         sa.Column("language", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("user_id", sa.Uuid(), nullable=True),
         sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
-        sa.Column("update_at", sa.TIMESTAMP(), nullable=True),
+        sa.Column("updated_at", sa.TIMESTAMP(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],

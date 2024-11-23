@@ -5,6 +5,7 @@ import jwt
 import uuid
 import logging
 from src.db.redis import get_client
+from itsdangerous import URLSafeTimedSerializer
 
 
 ACCESS_TOKEN_EXPIRY = 3600
@@ -35,3 +36,18 @@ def decode_token(token: str) -> dict:
     except jwt.PyJWTError as e:
         logging.exception(e)
         return None
+serializer = URLSafeTimedSerializer(Config.JWT_SECRET,"email-confirm")
+
+def create_confirmation_token(user_data: dict) -> str:
+    
+    token = serializer.dumps(user_data)
+    return token
+
+def verify_confirmation_token(token: str, max_age:int = 3600) -> dict: # 1 hour
+    try:
+        user_data = serializer.loads(token, max_age=max_age)
+        return user_data
+    except Exception as e:
+        logging.exception(e)
+        return None
+    

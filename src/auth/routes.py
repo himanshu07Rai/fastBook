@@ -23,8 +23,9 @@ async def signup(user_data: UserCreateSchema, session:AsyncSession = Depends(get
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
 
     new_user = await auth_service.create_user(user_data, session)
-    if new_user:
-        await send_email(new_user.email, "Welcome to the library", username=new_user.username,message="You have successfully signed up to the library") 
+    if not new_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User could not be created")
+    await auth_service.send_email(email)
     return new_user
 
 @auth_router.post('/login')
@@ -79,3 +80,12 @@ async def logout(token_details: dict = Depends(access_token_details), client=Dep
     return {
         "message": "Successfully logged out"
    }
+
+@auth_router.get('/verify_email/{token}')
+async def verify_email(token: str, session: AsyncSession = Depends(get_session)):
+    result = await auth_service.verify_email(token, session)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+    return {
+        "message": "Email verified"
+    }
