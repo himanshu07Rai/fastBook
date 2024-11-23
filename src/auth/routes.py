@@ -8,6 +8,7 @@ from .utils import create_access_token, verify_password
 from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user
 from src.db.redis import get_client
 from src.konstants import VALID_ACCESS_TOKEN_IDS
+from src.mail import send_email
 
 auth_router = APIRouter()
 auth_service = UserService()
@@ -22,6 +23,8 @@ async def signup(user_data: UserCreateSchema, session:AsyncSession = Depends(get
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
 
     new_user = await auth_service.create_user(user_data, session)
+    if new_user:
+        await send_email(new_user.email, "Welcome to the library", username=new_user.username,message="You have successfully signed up to the library") 
     return new_user
 
 @auth_router.post('/login')

@@ -15,6 +15,17 @@ services:
     networks:
       - app-network
 
+  my-redis:
+    image: redis
+    container_name: my-redis-container
+    ports:
+      - 6380:6379
+    restart: always
+    volumes:
+      - redis_volume_data:/data
+    networks:
+      - app-network
+
   fastapi:
     build: .
     container_name: fastapi
@@ -22,14 +33,12 @@ services:
       - db
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/fastbook_db
-      - LOG_LEVEL=debug
     networks:
       - app-network
 
 volumes:
   postgres_data:
+  redis_volume_data:
 
 networks:
   app-network:
