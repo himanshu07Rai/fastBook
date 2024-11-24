@@ -26,16 +26,6 @@ services:
     networks:
       - app-network
 
-  fastapi:
-    build: .
-    container_name: fastapi
-    depends_on:
-      - db
-    ports:
-      - "8000:8000"
-    networks:
-      - app-network
-
 volumes:
   postgres_data:
   redis_volume_data:

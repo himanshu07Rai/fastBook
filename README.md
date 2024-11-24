@@ -1,1 +1,7 @@
-hehe
+- conda create --name fast-book python=3.12 
+- - conda activate fast-book
+- pip installl -r requirements.txt
+- docker-compose up -d
+- fastapi run src --reload
+- celery -A src.celery_tasks.c_app worker
+- celery -A src.celery_tasks.c_app flower
