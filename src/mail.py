@@ -15,7 +15,7 @@ mail = FastMail(
         MAIL_SSL_TLS = Config.MAIL_SSL_TLS,
         USE_CREDENTIALS = Config.USE_CREDENTIALS,
         VALIDATE_CERTS = Config.VALIDATE_CERTS,
-        TEMPLATE_FOLDER= Path(BASE_DIR, "templates")
+        # TEMPLATE_FOLDER= Path(BASE_DIR, "templates")
     )
 )
 
